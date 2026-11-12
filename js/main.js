@@ -1,9 +1,14 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
+import screenImage from '../assets/Computer_Face.png';
 
-const BLINK_MS = 2000;        // intervalo do ecrã a ligar/desligar
 const SCREEN_INTENSITY = 12;  // intensidade da luz do ecrã quando ligado
+// Padrão de piscar (ms): ligado (FIRST_ON_MS na 1.ª vez, depois CYCLE_ON_MS) → desliga FIRST_OFF_MS
+// → volta a ligar durante GAP_MS → 3 rajadas (BURST_ON_MS ligado, 100–200 ms desligado)
+const FIRST_ON_MS = 3000, CYCLE_ON_MS = 60000, FIRST_OFF_MS = 500, GAP_MS = 800, BURST_ON_MS = 120;
+const FLY_MS = 1200;          // duração das animações da câmara (entrar/sair do monitor)
+const ROOM_H = 2.8;           // altura do teto
 
 const canvas = document.getElementById('scene');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -20,10 +25,10 @@ controls.target.set(0, 0.95, 0);
 controls.enablePan = false;
 controls.enableDamping = true;
 controls.minDistance = 0.7;
-controls.maxDistance = 2.5;
+controls.maxDistance = 1.8; // mantém a câmara dentro da sala
 controls.maxPolarAngle = Math.PI / 2.1;
 
-scene.add(new THREE.HemisphereLight(0x8899bb, 0x332211, 1.2));
+scene.add(new THREE.HemisphereLight(0xffffff, 0x332211, 1.0));
 
 const mat = (color, roughness = 0.6) => new THREE.MeshStandardMaterial({ color, roughness });
 const box = (w, h, d, material, x, y, z, parent = scene) => {
@@ -37,6 +42,22 @@ const box = (w, h, d, material, x, y, z, parent = scene) => {
 const floor = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), mat(0x1a1c22, 0.9));
 floor.rotation.x = -Math.PI / 2;
 scene.add(floor);
+
+// Paredes e teto brancos: caixa vista por dentro (fundo 1 cm abaixo do chão para não sobrepor)
+box(4.4, ROOM_H + 0.01, 3, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9, side: THREE.BackSide }),
+  0, (ROOM_H - 0.01) / 2, 0.9);
+
+// LED circular no teto + spotlight amarelada
+const led = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.12, 0.12, 0.02, 32),
+  new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffd89a, emissiveIntensity: 2 }),
+);
+led.position.set(0, ROOM_H - 0.01, 0);
+scene.add(led);
+const spot = new THREE.SpotLight(0xffd89a, 12, 0, Math.PI / 4, 0.6, 2);
+spot.position.set(0, ROOM_H - 0.03, 0);
+spot.target.position.set(0, 0, 0);
+scene.add(spot, spot.target);
 
 // Mesa
 const wood = mat(0x8b5a2b, 0.75);
@@ -53,25 +74,44 @@ scene.add(computer);
 const dark = mat(0x16181d, 0.4);
 box(0.24, 0.015, 0.16, dark, 0, DESK + 0.0075, -0.2, computer);                // base
 box(0.04, 0.2, 0.03, dark, 0, DESK + 0.1, -0.23, computer);                    // pescoço
-box(0.64, 0.39, 0.03, dark, 0, DESK + 0.27, -0.2, computer);                   // moldura
-const screenMat = new THREE.MeshStandardMaterial({ color: 0x000000, emissive: 0x1e6fff });
-const screen = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.35), screenMat);
+// Ecrã com as proporções da imagem (1138×766) para não a deformar
+const SCREEN_H = 0.35, SCREEN_W = SCREEN_H * 1138 / 766;
+box(SCREEN_W + 0.04, SCREEN_H + 0.04, 0.03, dark, 0, DESK + 0.27, -0.2, computer); // moldura
+const screenTexture = new THREE.TextureLoader().load(screenImage);
+screenTexture.colorSpace = THREE.SRGBColorSpace;
+const screenMat = new THREE.MeshStandardMaterial({ color: 0x000000, emissive: 0xffffff, emissiveMap: screenTexture });
+const screen = new THREE.Mesh(new THREE.PlaneGeometry(SCREEN_W, SCREEN_H), screenMat);
 screen.position.set(0, DESK + 0.27, -0.184);
 computer.add(screen);
 
 // Ecrã como fonte de luz
 RectAreaLightUniformsLib.init();
-const screenLight = new THREE.RectAreaLight(0x1e6fff, SCREEN_INTENSITY, 0.6, 0.35);
+const screenLight = new THREE.RectAreaLight(0xffffff, SCREEN_INTENSITY, SCREEN_W, SCREEN_H);
 screenLight.position.copy(screen.position);
 screenLight.lookAt(0, DESK + 0.27, 1);
 scene.add(screenLight);
 
-let on = true;
-setInterval(() => {
-  on = !on;
+const setScreen = (on) => {
   screenLight.intensity = on ? SCREEN_INTENSITY : 0;
   screenMat.emissiveIntensity = on ? 1 : 0;
-}, BLINK_MS);
+};
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+(async () => {
+  for (let first = true; ; first = false) {
+    await wait(first ? FIRST_ON_MS : CYCLE_ON_MS);
+    setScreen(false);
+    await wait(FIRST_OFF_MS);
+    setScreen(true);
+    await wait(GAP_MS);
+    for (let i = 0; i < 3; i++) {
+      setScreen(true);
+      await wait(BURST_ON_MS);
+      setScreen(false);
+      await wait(100 + Math.random() * 100);
+    }
+    setScreen(true);
+  }
+})();
 
 // Teclado-computador (estilo Raspberry Pi 500): base vermelha, topo e teclas brancas
 const red = mat(0xc8102e, 0.5);
@@ -124,8 +164,44 @@ let down = null;
 canvas.addEventListener('pointerdown', (e) => { down = [e.clientX, e.clientY]; });
 canvas.addEventListener('pointerup', (e) => {
   const dragged = !down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 5;
-  if (!dragged && hitsComputer(e)) bootstrap.Modal.getOrCreateInstance('#projectsModal').show();
+  if (!fly && !dragged && hitsComputer(e)) flyToScreen();
 });
+
+// Animações da câmara: até à frente do monitor (abre o modal ao chegar) e de volta ao fechar
+let fly = null;
+let back = null; // posição de onde a câmara veio, para regressar ao fechar o modal
+function flyTo(toPos, toTarget, onDone) {
+  fly = { start: performance.now(), fromPos: camera.position.clone(), fromTarget: controls.target.clone(), toPos, toTarget, onDone };
+  controls.enabled = false;
+}
+function flyToScreen() {
+  back = { pos: camera.position.clone(), target: controls.target.clone() };
+  // 0.75 de distância e ligeiramente acima: respeita minDistance e maxPolarAngle dos controlos
+  const toTarget = screen.position.clone();
+  flyTo(toTarget.clone().add(new THREE.Vector3(0, 0.1, 0.75)), toTarget,
+    () => bootstrap.Modal.getOrCreateInstance('#menuModal').show());
+}
+// Ao passar do menu para uma secção, o novo modal abre antes de o anterior fechar:
+// conta os modais abertos e só volta atrás quando o último fecha.
+let openModals = 0;
+document.addEventListener('show.bs.modal', () => openModals++);
+document.addEventListener('hidden.bs.modal', () => {
+  if (--openModals > 0 || !back) return;
+  flyTo(back.pos, back.target);
+  back = null;
+});
+function updateFly(now) {
+  const t = Math.min((now - fly.start) / FLY_MS, 1);
+  const k = t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2; // easeInOutCubic
+  camera.position.lerpVectors(fly.fromPos, fly.toPos, k);
+  controls.target.lerpVectors(fly.fromTarget, fly.toTarget, k);
+  if (t === 1) {
+    const { onDone } = fly;
+    fly = null;
+    controls.enabled = true;
+    onDone?.();
+  }
+}
 canvas.addEventListener('pointermove', (e) => { canvas.style.cursor = hitsComputer(e) ? 'pointer' : ''; });
 
 function resize() {
@@ -137,7 +213,8 @@ function resize() {
 addEventListener('resize', resize);
 resize();
 
-renderer.setAnimationLoop(() => {
+renderer.setAnimationLoop((now) => {
+  if (fly) updateFly(now);
   controls.update();
   renderer.render(scene, camera);
 });

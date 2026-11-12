@@ -21,26 +21,27 @@ a {
     width: 100%;
 }
 
-/* Modal não ocupa o ecrã inteiro */
-#projectsModal .modal-content {
+/* Modais não ocupam o ecrã inteiro; o conteúdo longo faz scroll */
+.modal-content {
     height: 80vh;
 }
 
+.modal-body {
+    overflow-y: auto;
+}
+
 /* Cada card ocupa 90% da altura do corpo do modal */
-#projectsModal .h-90 {
+.modal .h-90 {
     height: 90%;
     overflow: auto;
 }
 
 /* Em ecrãs pequenos os cards empilham-se: o corpo do modal faz scroll */
 @media (max-width: 767.98px) {
-    #projectsModal .modal-body {
-        overflow-y: auto;
-    }
-    #projectsModal .modal-body .row {
+    .modal-body .row {
         height: auto !important;
     }
-    #projectsModal .h-90 {
+    .modal .h-90 {
         height: 60vh;
     }
 }

@@ -22,19 +22,66 @@
               <button class="nav-link" type="button" data-bs-toggle="modal" data-bs-target="#projectsModal">Projects</button>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">About me</a>
+              <button class="nav-link" type="button" data-bs-toggle="modal" data-bs-target="#aboutModal">About me</button>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Curriculum Vitae</a>
+              <button class="nav-link" type="button" data-bs-toggle="modal" data-bs-target="#cvModal">Curriculum Vitae</button>
             </li>
           </ul>
         </div>
       </div>
     </nav>
 
-    <canvas id="scene" aria-label="3D desk with a computer. Click the monitor to open the projects." role="img"></canvas>
+    <canvas id="scene" aria-label="3D desk with a computer. Click the monitor to open the menu." role="img"></canvas>
 
-    <!-- Modal de projetos: abre ao clicar no monitor ou em "Projects" na navbar -->
+    <!-- Menu: abre ao clicar no monitor -->
+    <div class="modal fade" id="menuModal" tabindex="-1" aria-labelledby="menuModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="menuModalLabel">Projects</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row h-100 g-3">
+
+              <div class="col-md-4">
+                <div class="card h-90">
+                  <div class="card-body">
+                    <h5 class="card-title">Projects</h5>
+                    <p class="card-text">Here are all my projects.</p>
+                    <a href="#" class="card-link" data-bs-toggle="modal" data-bs-target="#projectsModal">Check projects</a>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <div class="card h-90">
+                  <div class="card-body">
+                    <h5 class="card-title">About Me</h5>
+                    <p class="card-text">A little section about me.</p>
+                    <a href="#" class="card-link" data-bs-toggle="modal" data-bs-target="#aboutModal">About me</a>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <div class="card h-90">
+                  <div class="card-body">
+                    <h5 class="card-title">CV</h5>
+                    <p class="card-text">Here's my CV</p>
+                    <a href="#" class="card-link" data-bs-toggle="modal" data-bs-target="#cvModal">Check out the CV</a>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Secção: Projects -->
     <div class="modal fade" id="projectsModal" tabindex="-1" aria-labelledby="projectsModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
@@ -43,42 +90,40 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <div class="row h-100 g-3">
+            <!-- EDITAR: conteúdo de Projects -->
+            <p>Os meus projetos.</p>
+          </div>
+        </div>
+      </div>
+    </div>
 
-              <!-- EDITAR: card 1 -->
-              <div class="col-md-4">
-                <div class="card h-90">
-                  <div class="card-body">
-                    <h5 class="card-title">Eigenfaces</h5>
-                    <p class="card-text">Java command-line tool that does eigen-decomposition and an eigenfaces image workflow.</p>
-                    <a href="#" class="card-link">Ver projeto</a>
-                  </div>
-                </div>
-              </div>
+    <!-- Secção: About me -->
+    <div class="modal fade" id="aboutModal" tabindex="-1" aria-labelledby="aboutModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="aboutModalLabel">About me</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <!-- EDITAR: conteúdo de About me -->
+            <p>Um pouco sobre mim.</p>
+          </div>
+        </div>
+      </div>
+    </div>
 
-              <!-- EDITAR: card 2 -->
-              <div class="col-md-4">
-                <div class="card h-90">
-                  <div class="card-body">
-                    <h5 class="card-title">Projeto 2</h5>
-                    <p class="card-text">Descrição do projeto 2.</p>
-                    <a href="#" class="card-link">Ver projeto</a>
-                  </div>
-                </div>
-              </div>
-
-              <!-- EDITAR: card 3 -->
-              <div class="col-md-4">
-                <div class="card h-90">
-                  <div class="card-body">
-                    <h5 class="card-title">Projeto 3</h5>
-                    <p class="card-text">Descrição do projeto 3.</p>
-                    <a href="#" class="card-link">Ver projeto</a>
-                  </div>
-                </div>
-              </div>
-
-            </div>
+    <!-- Secção: Curriculum Vitae -->
+    <div class="modal fade" id="cvModal" tabindex="-1" aria-labelledby="cvModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="cvModalLabel">Curriculum Vitae</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <!-- EDITAR: conteúdo de Curriculum Vitae -->
+            <p>O meu CV.</p>
           </div>
         </div>
       </div>
