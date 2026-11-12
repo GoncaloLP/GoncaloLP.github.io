@@ -1,0 +1,46 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    background: #0b0d12;
+}
+
+a {
+    text-decoration: none;
+}
+
+#scene {
+    flex: 1;
+    min-height: 0;
+    display: block;
+    width: 100%;
+}
+
+/* Modal não ocupa o ecrã inteiro */
+#projectsModal .modal-content {
+    height: 80vh;
+}
+
+/* Cada card ocupa 90% da altura do corpo do modal */
+#projectsModal .h-90 {
+    height: 90%;
+    overflow: auto;
+}
+
+/* Em ecrãs pequenos os cards empilham-se: o corpo do modal faz scroll */
+@media (max-width: 767.98px) {
+    #projectsModal .modal-body {
+        overflow-y: auto;
+    }
+    #projectsModal .modal-body .row {
+        height: auto !important;
+    }
+    #projectsModal .h-90 {
+        height: 60vh;
+    }
+}
